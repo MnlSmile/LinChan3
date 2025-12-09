@@ -30,7 +30,7 @@ class ExternalMapClient(QWebSocket):
         x, y, z, i, j, k = struct.unpack('>6i', _bytes[-24:])
         #name = _bytes[:-24].decode('utf-8', errors='ignore')
         #print(name)
-        self.emc_window.update_test_player((x, y, z), (i, j, k))
+        self.emc_window.update_test_player((x, y, z), (i, j), k)
 
 class ExternalMapWindow(QWidget):
     def __init__(self):
@@ -40,11 +40,11 @@ class ExternalMapWindow(QWidget):
         self.setGeometry((1920 - 1280) // 2, (1080 - 720) // 2, 1280, 720)
 
         self.playericon = PlayerIcon(self, 'MnlSmile', 986561577)
-        self.playericon.update_pos_pov((100, 100, 100), (100, 100, 100))
+        self.playericon.update_pos_pov((100, 100, 100), (100, 100), 0)
     def paintEvent(self, a0):
         return super().paintEvent(a0)
-    def update_test_player(self, pos, pov):
-        self.playericon.update_pos_pov(pos, pov)
+    def update_test_player(self, pos, pov, dim):
+        self.playericon.update_pos_pov(pos, pov, dim)
     
 
 class PlayerIcon(QWidget):
@@ -53,15 +53,41 @@ class PlayerIcon(QWidget):
         self.name = name
         self.qqid = qqid
 
-        self.setGeometry(self.parent().width() // 2 - 35, self.parent().height() // 2 - 35, 70, 70) 
+        a = 100
+        self.setGeometry((self.parent().width() - a) // 2, (self.parent().height() - a) // 2, a, a) 
         self.pos:tuple[int, int, int] = (0, 0, 0)
-        self.pov:tuple[int, int, int] = (0, 0, 1)
+        self.pov:tuple[int, int] = (0, 0)  # degrees: [yaw, pitch]
+        self.dim = 0
         self.rot = 0
-    def update_pos_pov(self, pos:tuple[int, int, int], pov:tuple[int, int, int]) -> None:
+
+        self.setObjectName("PlayerIcon")
+        self.icon = QLabel(self)
+        self.icon.setGeometry(self.width() // 2 - 16, self.height() // 2 - 16, 32, 32)
+        self.icon.setScaledContents(True)
+        img_path = 'D:\\python_works\\PhiLia093\\cache\\g.jpg'
+        pix = QPixmap(str(img_path)).scaled(32, 32, Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
+        size = 32
+        circ = QPixmap(size, size)
+        circ.fill(Qt.transparent)
+        painter = QPainter(circ)
+        painter.setRenderHint(QPainter.Antialiasing)
+        path = QPainterPath()
+        path.addEllipse(0, 0, size, size)
+        painter.setClipPath(path)
+        painter.drawPixmap(0, 0, pix)
+        painter.end()
+        self.icon.setPixmap(circ)
+        self.icon.setScaledContents(True)
+    def update_pos_pov(self, pos:tuple[int, int, int], pov:tuple[int, int], dim:int) -> None:
         self.pos = pos
         x, _, z = pos
         self.pov = pov
-        #self.move(round(x - self.width() / 2), round(z - self.height() / 2))
+        self.dim = dim
+        if self.dim != 0:  # only deal with overworld now
+            self.hide()
+            return
+        else:
+            self.show()
         self.move(round(x - self.width() / 2), round(z - self.height() / 2))
         self.update()
     def paintEvent(self, a0):
@@ -69,26 +95,23 @@ class PlayerIcon(QWidget):
         painter.setRenderHint(QPainter.Antialiasing)
 
         pen = QPen()
-        pen.setColor(CYRENE_PINK)
+        #pen.setColor(CYRENE_PINK)
+        pen.setColor(TEST_RED)
         pen.setWidth(4)
         painter.setPen(pen)
 
         painter.save()
         painter.translate(self.width() / 2, self.height() / 2)
-        R = 16
+        R = 18
         rect = QRect(-R, -R, R * 2, R * 2)
         painter.drawEllipse(rect)
         painter.restore()
 
-        TR = -2 + 22
+        TR = -2 + R + 8
         triangle = QPolygon([QPoint(0, TR + 12), QPoint(-6, TR + 2), QPoint(6, TR + 2)])
-        i, _, k = self.pov
-        print(i, _, k)
-        pov_length = math.hypot(i, k)
-        if pov_length == 0:
-            self.rot = 0.0# + 180
-        else:
-            self.rot = math.degrees(math.atan2(k, i))# + 180
+        i, j = self.pov
+        #print(i, j, self.dim)
+        self.rot = i
         painter.save()
         painter.translate(self.width() / 2, self.height() / 2)
         painter.rotate(self.rot)

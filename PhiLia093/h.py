@@ -18,6 +18,7 @@ import time
 import keyboard
 import math
 import struct
+from pathlib import Path
 
 from ctypes import windll
 from win32con import *
@@ -36,6 +37,7 @@ RECOVER_FROM_ANGER_TIP = '快呀!'
 LOG_PATH = os.getenv('APPDATA') + '/../LocalLow/Acureus/Draw_Guess/Player.log'
 
 CYRENE_PINK = QColor(254, 223, 228)
+TEST_RED = QColor(255, 0, 0)
 
 global_timers = []
 
