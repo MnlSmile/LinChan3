@@ -2,12 +2,6 @@ from PhiLia093.h import *
 
 global_timers = []
 
-DEFAULT_TIP = 'xxxxxxxxxxxx\n人家可以帮你输哦?'
-ANGRY_1_TIP = '不要扯人家! \n会痛的哦?'
-RECOVER_FROM_ANGER_TIP = 'xxxxxxxxxxx, 快输呀!\n人家舍不得记你的仇呢'
-
-LOG_PATH = os.getenv('APPDATA') + '/../LocalLow/Acureus/Draw_Guess/Player.log'
-
 def restore_and_activate_window(hwnd):
     SW_RESTORE = 9
     windll.user32.ShowWindow(hwnd, SW_RESTORE)
@@ -86,7 +80,6 @@ class RemoteCopyWindow(QWidget):
         self.o_tip.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.o_tip.setFont(font_hyqh_55(18))
         self.o_tip.setText(DEFAULT_TIP)
-
     def resizeEvent(self, a0):
         global global_timers
         if (a0.oldSize().width(), a0.oldSize().height()) != (-1, -1) and (a0.size().width(), a0.size().height()) != (400, 200):
@@ -108,7 +101,6 @@ class RemoteCopyWindow(QWidget):
             recover_size_timer.setSingleShot(True)
             recover_size_timer.start(1000)
         return super().resizeEvent(a0)
-        
     def code_inputing_flow(self) -> None:
         def _thread():
             block_input(True)
@@ -172,14 +164,10 @@ class AFKMonitor(QFile):
             example = "[22:06:09.368][DG][MnlSmile][Debug] [Round 1] Transitioning from 'Drawing' to 'Guessing'\n"
             line = self.readLine().data().decode('utf-8')
             if re.search(r"^\[\d{2}:\d{2}:\d{2}\.\d{3}\]\[DG\]\[.*\]\[Debug\] \[Round \d+\] Transitioning from 'Drawing' to 'Guessing'\n*$", line):
-                print('re search success')
                 if GetForegroundWindow() != game:
-                    print('game not on foreground, reminding')
-                    print('nz 鬼回来猜词')
                     self.alarm_window.show()
                     SetForegroundWindow(game)
         else:
-            print('game not found, skipping')
             self.timer.setInterval(2500)
 
 if __name__ == '__main__':

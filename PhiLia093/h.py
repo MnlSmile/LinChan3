@@ -15,6 +15,9 @@ import pyautogui
 import MCLikeCommandParser as mccmd
 import psutil
 import time
+import keyboard
+import math
+import struct
 
 from ctypes import windll
 from win32con import *
@@ -25,6 +28,14 @@ from typing import *
 
 ALARM_WINDOW_TITLE = '!!!'
 ANGRY_1_TIP = '不要扯人家! \n会痛的哦?'
+
+DEFAULT_TIP = '又可以看伙伴画画了!\n人家可以帮你输哦?'
+ANGRY_1_TIP = '不要扯人家! \n会痛的哦?'
+RECOVER_FROM_ANGER_TIP = '快呀!'
+
+LOG_PATH = os.getenv('APPDATA') + '/../LocalLow/Acureus/Draw_Guess/Player.log'
+
+CYRENE_PINK = QColor(254, 223, 228)
 
 global_timers = []
 
@@ -131,6 +142,15 @@ class NormalAlarmWindow(QWidget):
             recover_size_timer.start(1000)
         return super().resizeEvent(a0)
 
+def disable(func):
+    def _wrapper(*args, **kwargs):
+        print(f"Disabled function calling of {func.__name__}()")
+    return _wrapper
+@disable
+def _some_example():
+    pass
+
+
 def font_hyqh_75(size:int) -> QFont:
     return QFont('汉仪旗黑 75S', size)
 
@@ -138,3 +158,7 @@ def font_hyqh_55(size:int) -> QFont:
     return QFont('汉仪旗黑 55S', size)
 
 endl = '\n'
+__main__constname = '__main__'
+
+if __name__ == '__main__':
+    _some_example()
