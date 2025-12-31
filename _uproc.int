@@ -1,0 +1,3 @@
+import bedrock_launcher
+
+bedrock_launcher.launching_flow(use_new_qapp=True)

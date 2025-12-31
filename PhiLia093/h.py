@@ -18,7 +18,12 @@ import time
 import keyboard
 import math
 import struct
+import subprocess
+import multiprocessing
+import winreg as reg
+from traceback import print_exception
 from pathlib import Path
+from collections import defaultdict
 
 from ctypes import windll
 from win32con import *
@@ -153,14 +158,29 @@ def _some_example():
     pass
 
 
-def font_hyqh_75(size:int) -> QFont:
+def font_hyqh_75(size:int=24) -> QFont:
     return QFont('汉仪旗黑 75S', size)
 
-def font_hyqh_55(size:int) -> QFont:
+def font_hyqh_55(size:int=24) -> QFont:
     return QFont('汉仪旗黑 55S', size)
 
 endl = '\n'
 __main__constname = '__main__'
 
-if __name__ == '__main__':
-    _some_example()
+
+gc_protected = []
+
+def gc_protect(a) -> None:
+    global gc_protected
+    if a not in gc_protected:
+        gc_protected += [a]
+
+def cancle_gc_protect(a) -> None:
+    global gc_protected
+    if a in gc_protected:
+        gc_protected.remove(a)
+
+def qel_sleep(ms:int) -> None:
+    loop = QEventLoop()
+    QTimer.singleShot(ms, loop.quit)
+    loop.exec_()
